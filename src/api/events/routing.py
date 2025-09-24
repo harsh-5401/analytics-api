@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from .schema import Eventschema, Eventlistschema
+from .schema import Eventschema, Eventlistschema, Eventcreateschema, Eventupdateschema
 
 router=APIRouter()
 
@@ -16,16 +16,8 @@ def read_events()->Eventlistschema:
     }
 
 
-# POST method 
 
-@router.post("/")
-# single items 
-def create_event(data: dict={}):
-    print(data)
-    return data
-
-
-#  GET api/events/12
+#  GET api/events/12 
 @router.get("/{event_id}")
 # single items 
 def get_events(event_id:int)->Eventschema:
@@ -34,10 +26,22 @@ def get_events(event_id:int)->Eventschema:
     }
 
 
+# POST method  create
+
+@router.post("/")
+# single items 
+def create_event(payload:Eventcreateschema)->Eventschema:
+    data=payload.model_dump()     #payload->dict ->pyndamic
+    print(payload)
+    return {
+        "id" : 125
+    }
+
 #  PUT api/events/12
 @router.put("/{event_id}")
 # single items 
-def update_event(event_id:int , payload:dict={})->Eventschema:
+def update_event(event_id:int , payload:Eventupdateschema)->Eventschema:
+    print(payload)
     return {
         "id" : event_id
     }
@@ -47,6 +51,7 @@ def update_event(event_id:int , payload:dict={})->Eventschema:
 @router.delete("/{event_id}")
 # single items 
 def update_event(event_id:int , payload:dict={})->Eventschema:
+    print(payload)
     return {
         "id" : event_id
     }
