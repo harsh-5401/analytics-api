@@ -8,3 +8,5 @@ sqlalchemy
 ipykernel
 requests
 httpx
+python-decouple
+psycopg[binary]
