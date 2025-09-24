@@ -1,13 +1,17 @@
 from fastapi import APIRouter
-from .schema import Eventschema
+from .schema import Eventschema, Eventlistschema
 
 router=APIRouter()
 
 @router.get("/")
-def read_events():
+def read_events()->Eventlistschema:
     # buunch of item in table 
     return {
-        "items" : [1,2,3]
+        "result" : [
+            {"id" : 1},
+            {"id" : 2},
+        ],
+        "count" : 88
     }
 
 
