@@ -1,13 +1,22 @@
 from typing import Union
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
+from sqlmodel import Session
 from api.events import router as event_router
+from api.db.session import initdb
+from contextlib import asynccontextmanager
 
 
-app = FastAPI()
-app.include_router(event_router , prefix="/api/events")
 
 
+
+@asynccontextmanager
+async def lifespan(app:FastAPI):
+    await initdb()
+    yield
+
+app = FastAPI(lifespan=lifespan)
+app.include_router(event_router , prefix="/api/events")    
 
 
 
