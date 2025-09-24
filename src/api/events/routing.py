@@ -1,58 +1,88 @@
-from fastapi import APIRouter
-from .schema import Eventschema, Eventlistschema, Eventcreateschema, Eventupdateschema
+from fastapi import APIRouter, Depends, HTTPException
+# from .schema import Eventschema, Eventlistschema, Eventcreateschema, Eventupdateschema
+from api.db.config import DATABASE_URL
+from .models import EventModel, Eventlistschema, Eventcreateschema, Eventupdateschema
+
+from api.db.session import get_session
+from sqlmodel import Session, select
 
 router=APIRouter()
-
-# api/events/
-@router.get("/")
-def read_events()->Eventlistschema:
+ 
+# api/events/ 
+@router.get("/" , response_model=Eventlistschema)
+def read_events(session:Session= Depends(get_session)):
     # buunch of item in table 
+    query=select(EventModel).order_by(EventModel.id.desc()).limit(1000)
+    result=session.exec(query).all()
+    print(result)
     return {
-        "result" : [
-            {"id" : 1},
-            {"id" : 2},
-        ],
-        "count" : 88
+        "result":result,
+        "count":len(result)
     }
 
 
 
-#  GET api/events/12 
-@router.get("/{event_id}")
+#  GET api/events/12 b
+@router.get("/{event_id}" , response_model=EventModel)
 # single items 
-def get_events(event_id:int)->Eventschema:
-    return {
-        "id" : event_id
-    }
+def get_events(event_id:int , session:Session= Depends(get_session)):
+    query=select(EventModel).where(EventModel.id==event_id)
+    result=session.exec(query).first()
+    if not result:
+        raise HTTPException(status_code=404 , detail="not found")
+    return result
 
 
 # POST method  create
 
-@router.post("/")
+@router.post("/" , response_model=EventModel)
 # single items 
-def create_event(payload:Eventcreateschema)->Eventschema:
+def create_event(payload:Eventcreateschema , session:Session= Depends(get_session)):
     data=payload.model_dump()     #payload->dict ->pyndamic
-    print(payload)
-    return {
-        "id" : 125
-    }
+    print(data)
+    obj=EventModel.model_validate(data)
+    # // add it to database 
+    session.add(obj)
+    session.commit()
+    session.refresh(obj)
+    return obj
+
 
 #  PUT api/events/12
-@router.put("/{event_id}")
-# single items 
-def update_event(event_id:int , payload:Eventupdateschema)->Eventschema:
+@router.put("/{event_id}" , response_model=EventModel) 
+def update_event(event_id:int , payload:Eventupdateschema , session:Session= Depends(get_session) )->EventModel:
     print(payload)
-    return {
-        "id" : event_id
-    }
+    query=select(EventModel).where(EventModel.id==event_id)
+    obj=session.exec(query).first()
+    if not obj:
+        raise HTTPException(status_code=404 , detail="not found")
+    data=payload.model_dump()
+    for k, v in data.items():
+        if k==id:
+            continue
+        setattr(obj , k , v)
+    
+    session.add(obj)
+    session.commit()
+    session.refresh(obj)
+    return obj
+
+
 
 
 #  delete api/events/12
-@router.delete("/{event_id}")
-# single items 
-def update_event(event_id:int , payload:dict={})->Eventschema:
-    print(payload)
-    return {
-        "id" : event_id
-    }
+from fastapi import HTTPException
+
+@router.delete("/{event_id}", response_model=EventModel)
+def delete_event(event_id: int, session: Session = Depends(get_session)):
+    query = select(EventModel).where(EventModel.id == event_id)
+    data = session.exec(query).first()
+    
+    if not data:
+        raise HTTPException(status_code=404, detail="Event not found")
+    
+    session.delete(data)
+    session.commit()
+    return data
+
 
