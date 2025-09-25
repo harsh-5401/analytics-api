@@ -1,12 +1,24 @@
 # from pydantic import BaseModel
-from sqlmodel import SQLModel, Field
-from typing import List, Optional
+from sqlmodel import SQLModel, Field, Session,DateTime
+from typing import Optional
+# from sqlalchemy import DateTime
+from datetime import datetime, timezone
+from fastapi import Depends
+from typing import List
 
-class EventModel(SQLModel , table=True):
-    id:Optional[int]=Field(default=None , primary_key=True)
-    # id:int 
-    page:Optional[str]=""
-    description:Optional[str]=""
+def get_utc_now():
+    return datetime.now(timezone.utc)  # already UTC aware
+
+
+class EventModel(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    page: Optional[str] = ""
+    description: Optional[str] = ""
+    created_at: datetime = Field(
+        default_factory=get_utc_now,
+        sa_type=DateTime(timezone=True),
+        nullable=False,
+    )
 
 class Eventcreateschema(SQLModel):
     page:str

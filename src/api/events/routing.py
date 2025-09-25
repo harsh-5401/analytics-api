@@ -35,15 +35,14 @@ def get_events(event_id:int , session:Session= Depends(get_session)):
 
 # POST method  create
 
-@router.post("/" , response_model=EventModel)
-# single items 
-def create_event(payload:Eventcreateschema , session:Session= Depends(get_session)):
-    data=payload.model_dump()     #payload->dict ->pyndamic
-    print(data)
-    obj=EventModel.model_validate(data)
-    # // add it to database 
+@router.post("/", response_model=EventModel)
+def create_event(
+    payload: Eventcreateschema, session: Session = Depends(get_session)
+):
+    data = payload.model_dump()   # dict from schema
+    obj = EventModel(**data)      # ✅ build ORM object
     session.add(obj)
-    session.commit()
+    session.commit()              # ✅ no argument here
     session.refresh(obj)
     return obj
 
