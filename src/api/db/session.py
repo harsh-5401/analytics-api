@@ -7,9 +7,9 @@ if DATABASE_URL== "":
 
 engine=sqlmodel.create_engine(url=DATABASE_URL)
 
-async def initdb():
+def initdb():
     print("creating database")
-    await SQLModel.metadata.create_all(engine)
+    SQLModel.metadata.create_all(engine)
 
 def get_session():
     with Session(engine) as session:
