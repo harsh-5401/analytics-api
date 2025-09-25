@@ -1,7 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException
 # from .schema import Eventschema, Eventlistschema, Eventcreateschema, Eventupdateschema
 from api.db.config import DATABASE_URL
-from .models import EventModel, Eventlistschema, Eventcreateschema, Eventupdateschema, get_utc_now
+# from .models import EventModel, Eventlistschema, Eventcreateschema, Eventupdateschema, get_utc_now
+from .timescale_models import EventModel, Eventlistschema, Eventcreateschema, Eventupdateschema, get_utc_now
 
 from api.db.session import get_session
 from sqlmodel import Session, select
