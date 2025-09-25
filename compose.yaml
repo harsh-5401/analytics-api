@@ -14,6 +14,8 @@ services:
     command: uvicorn main:app --host 0.0.0.0 --port 8002 --reload
     volumes:
       - ./src:/code:rw
+    depends_on:
+      - db_service
     develop:
       watch:
         - path: ./Dockerfile
@@ -22,7 +24,6 @@ services:
           action: rebuild
         - path: ./compose.yaml
           action: rebuild
-
   db_service:
     image: timescale/timescaledb:latest-pg17
     environment:
